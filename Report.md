@@ -15,7 +15,7 @@ Assignment 4
 2. Note that the chat application uses UDP. What could be an issue with this design choice—and
    how would you fix it?
    
-# Task 4
+# Task 3
 
 1. What is potential causality in Distributed Systems, and how can you model it? Why
    “potential causality” and not just “causality”?
