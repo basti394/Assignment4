@@ -1,6 +1,6 @@
-# Vector Clock
+# Logical Clocks
 
-This repository contains the project template for completing Task 1, Task 2 of Assignment 4. Execute the commands from the root folder BCS-DS-Assignment-Package/tasks.
+This repository contains the project template for completing Task 1, Task 2 of Assignment 4. Execute the commands from the root folder C:\path\to\your\project\Assignment4.
 
 > **_NOTE:_**
 > After loading the project depending on which IDE (if using), you might see some file not found errors. However, they will disappear after you have successfully built the project using following command from the tasks folder.
@@ -41,7 +41,7 @@ src
 
 ## Run Server  
 
-###### Note: Make sure you run the commands from the location of the "tasks" folder: C:\path\to\your\project\BCS-DS-Assignment-Package\tasks>
+###### Note: Make sure you run the commands from the location of the root folder: C:\path\to\your\project\Assignment4
 
 
 ###### On MacOS:
