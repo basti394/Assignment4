@@ -2,17 +2,18 @@
 package com.assignment4.tasks;
 
 
+import static java.lang.Integer.max;
+
 public class LamportTimestamp {
 
     private int timestamp;
 
     public LamportTimestamp(int time) {
-
         timestamp = time;
     }
 
     public synchronized void tick() {
-        // TODO: update the timestamp by 1
+        timestamp += 1;
     }
 
     public synchronized int getCurrentTimestamp(){
@@ -20,7 +21,6 @@ public class LamportTimestamp {
     }
 
     public synchronized void updateClock(int receivedTimestamp) {
-        // TODO: update the function to choose the higher value out of the two received timestamps
-        timestamp = receivedTimestamp;
+        timestamp = max(timestamp, receivedTimestamp) + 1;
     }
 }
