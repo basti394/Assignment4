@@ -1,5 +1,7 @@
 package com.assignment4.tasks;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,16 +23,51 @@ public class VectorClientThread implements Runnable {
   @Override
   public void run() {
 
-  // TODO:
-  /*
-      Write your code here to continuously listen for incoming messages from the server
-      You should first process the received message and then update the vector clock based on the received message (you can use .replaceAll("[\\[\\]]", "").split(",\\s*"); to split a received vector clock into its components)
-      Then display the received message and its vector clock
-  */
+      try {
+          while (true) {
+              DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
+              clientSocket.receive(packet);
+              String receivedMessage = new String(packet.getData(), 0, packet.getLength());
+              String[] parts = receivedMessage.split(":");
+
+              if (parts.length >= 3) {
+                  String messageContent = parts[0];
+                  String vectorString = parts[1];
+                  int senderId = Integer.parseInt(parts[2]);
+
+                  VectorClock receivedClock = parseVectorClock(vectorString);
+
+                  vcl.updateClock(receivedClock);
+
+                  System.out.println("Client" + senderId + ": " + messageContent + ":" + vcl.showClock());
+                  System.out.println("Current clock: " + vcl.showClock());
+              }
+          }
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
 
     displayMessage(null);
 
   }
+
+    private VectorClock parseVectorClock(String vectorString) {
+        String cleanString = vectorString.replaceAll("[\\[\\]]", "");
+        String[] clockValues = cleanString.split(",\\s*");
+
+        int length = clockValues.length;
+        VectorClock tempClock = new VectorClock(length);
+
+        for (int i = 0; i < length; i++) {
+            try {
+                int val = Integer.parseInt(clockValues[i].trim());
+                tempClock.setVectorClock(i, val);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+        return tempClock;
+    }
 
 // TODO:
 /*

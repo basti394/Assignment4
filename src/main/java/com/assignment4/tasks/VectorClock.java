@@ -12,19 +12,31 @@ public class VectorClock {
   }
 
   public synchronized void setVectorClock(int processId, int time) {
-    // TODO: Set the vector clock value for the processId
+    if (checkProcessIdValidity(processId)) {
+        timestamps[processId] = time;
+    }
   }
 
   public synchronized void tick(int processId) {
-    // TODO: Increment the vector clock value for the processId
+    if (checkProcessIdValidity(processId)) {
+        timestamps[processId]++;
+    }
   }
 
   public synchronized int getCurrentTimestamp(int processId) {
+    if (!checkProcessIdValidity(processId)) {
+        return -1; // Invalid process ID
+    }
     return timestamps[processId];
   }
 
   public synchronized void updateClock(VectorClock other) {
-    // TODO: Update the vector clock based on the values of another vector clock
+    for (int i = 0; i < timestamps.length; i++) {
+        int otherTimeStamp = other.getCurrentTimestamp(i);
+        if (otherTimeStamp > timestamps[i]) {
+            timestamps[i] = otherTimeStamp;
+        }
+    }
   }
 
   public synchronized String showClock() {
@@ -37,5 +49,9 @@ public class VectorClock {
   public synchronized boolean checkAcceptMessage(int senderId, VectorClock senderClock) {
     boolean acceptMessage = true;
     return acceptMessage;
+  }
+
+  private boolean checkProcessIdValidity(int processId) {
+      return processId >= 0 && processId < timestamps.length;
   }
 }

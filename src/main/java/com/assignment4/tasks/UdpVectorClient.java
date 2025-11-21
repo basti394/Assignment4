@@ -3,6 +3,7 @@ package com.assignment4.tasks;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class UdpVectorClient {
@@ -28,12 +29,13 @@ public class UdpVectorClient {
     receiverThread.start();
 
     // TODO: This should not be counted as a message event, so the clock should not tick
-
-    String joinMessage = "message:timestamp:id";
+    String joinMessage = "User " + id + " has connected!: " + vcl.showClock() + ":" + id;
 
     //TODO: Send an initial "join" message to notify the other clients that a new one has connected
-
-   // TODO: Send the packet to the server
+    byte[] sendData = joinMessage.getBytes();
+    DatagramPacket joinPacket = new DatagramPacket(sendData, sendData.length, ipAddress, port);
+   // TODO: Send the packet to the serveer
+    clientSocket.send(joinPacket);
 
     // Prompt the user to start entering messages
     System.out.println("[" + id + "] Enter any message:");
@@ -52,10 +54,19 @@ public class UdpVectorClient {
         
         // TODO: Increment the vector clock for the client's process
         // The clock should NOT tick if the message to send is "history" (for Task 2.2)
+        if (!messageBody.equalsIgnoreCase("history")) {
+            vcl.tick(id - 1);
+        }
         
         // TODO: Prepare the message with the updated vector clock and client ID and send it to the server
-        String responseMessage = "message:timestamp:id";
-        System.out.println("Sent message: " + responseMessage);
+        String vectorString = vcl.showClock();
+        String messageToSend = messageBody + ":" + vectorString + ":" + id;
+
+        sendData = messageToSend.getBytes();
+        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, ipAddress, port);
+        clientSocket.send(sendPacket);
+
+        System.out.println("Sent message: " + messageToSend);
         System.out.println("Current clock: " + vcl.showClock());
       }
     }
