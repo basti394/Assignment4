@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class VectorClientThread implements Runnable {
@@ -35,21 +36,43 @@ public class VectorClientThread implements Runnable {
                   String vectorString = parts[1];
                   int senderId = Integer.parseInt(parts[2]);
 
+                  int senderIndex = senderId - 1;
+
                   VectorClock receivedClock = parseVectorClock(vectorString);
+                  Message newMessage = new Message(messageContent, receivedClock, senderIndex);
 
-                  vcl.updateClock(receivedClock);
+                  if (vcl.checkAcceptMessage(senderIndex, receivedClock)) {
+                      displayMessage(newMessage);
 
-                  System.out.println("Client" + senderId + ": " + messageContent + ":" + vcl.showClock());
-                  System.out.println("Current clock: " + vcl.showClock());
+                      checkBuffer();
+                  } else {
+                      System.out.println("Buffered Message " + messageContent + " with clock: " + receivedClock.showClock());
+                      buffer.add(newMessage);
+                  }
               }
           }
       } catch (IOException e) {
           e.printStackTrace();
       }
-
-    displayMessage(null);
-
   }
+
+    private void checkBuffer() {
+        boolean deliveredSomething = true;
+
+        while (deliveredSomething) {
+            deliveredSomething = false;
+            Iterator<Message> iterator = buffer.iterator();
+
+            while (iterator.hasNext()) {
+                Message msg = iterator.next();
+                if (vcl.checkAcceptMessage(msg.getSenderID(), msg.getClock())) {
+                    displayMessage(msg);
+                    iterator.remove();
+                    deliveredSomething = true;
+                }
+            }
+        }
+    }
 
     private VectorClock parseVectorClock(String vectorString) {
         String cleanString = vectorString.replaceAll("[\\[\\]]", "");
@@ -76,6 +99,11 @@ public class VectorClientThread implements Runnable {
     Example: Initial clock [0,0,0], updated clock after message from Client 1: [1, 0, 0]
 */
   private void displayMessage(Message message) {
+      vcl.updateClock(message.getClock());
 
+      int displayId = message.getSenderID() + 1;
+
+      System.out.println("Client " + displayId + ": " + message.getMessage() + ": " + message.getClock().showClock());
+      System.out.println("Current clock: " + vcl.showClock());
   }
 }
